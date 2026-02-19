@@ -38,7 +38,7 @@ async def get_houses(
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema)
 async def get_house(house_id: int):
     for house in houses_list:
-        if house["id"] == house_id:
+        if house["id"] == house_id and house["active"]:
             return house
 
     raise HTTPException(status_code=404, detail=f"House {house_id} not found")
