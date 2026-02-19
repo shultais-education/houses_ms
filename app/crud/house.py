@@ -1,6 +1,6 @@
 from app.models import House
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select, desc, asc, or_
+from sqlmodel import select, desc, asc
 from typing import Sequence
 
 
