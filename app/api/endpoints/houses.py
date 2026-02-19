@@ -5,6 +5,7 @@ from app.data import houses_list
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
 from app.api.deps import DBSessionDep
+from sqlmodel import text
 
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
@@ -22,7 +23,7 @@ async def get_houses(
         order_by: Optional[SortField] = Query("id"),
         order: Optional[SortOrder] = Query("asc")):
 
-    print(session)
+    print(session.exec(text("SELECT 1")))
 
     houses = [house for house in houses_list if house["active"]]
 
