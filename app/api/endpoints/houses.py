@@ -4,11 +4,11 @@ from fastapi import APIRouter
 houses_router = APIRouter()
 
 
-@houses_router.get("/")
-async def root():
-    return {"message": "Hello World"}
+@houses_router.get("/houses")
+async def houses():
+    return {"message": "Вывод домов"}
 
 
-@houses_router.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+@houses_router.get("/houses/{house_id}")
+async def house_detail(house_id: int):
+    return {"message": f"Вывод дома {house_id}"}
