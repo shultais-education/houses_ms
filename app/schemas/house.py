@@ -19,5 +19,5 @@ class HouseDetailSchema(BaseModel):
 class HouseItemSchema(BaseModel):
     id: int
     name: str
-    price: int
+    price: int | None = None
 
