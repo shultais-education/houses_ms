@@ -12,5 +12,5 @@ async def lifespan(app: FastAPI):
     print("Завершение")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="API домов", description="Микросервис для управления домами")
 app.include_router(houses_router)
