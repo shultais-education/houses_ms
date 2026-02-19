@@ -4,9 +4,9 @@ from fastapi import Query
 from fastapi import Request
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
-from app.api.deps import DBSessionDep
 from app.crud import house as crud_house
 from app.api.dependencies.houses import HouseFiltersDep
+from app.api.dependencies.database import DBSessionDep
 
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
