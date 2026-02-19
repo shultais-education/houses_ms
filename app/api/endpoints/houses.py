@@ -15,8 +15,8 @@ SortOrder= Literal["asc", "desc"]
 
 @houses_router.get("/", response_model=List[HouseItemSchema])
 async def get_houses(
-        min_price: Optional[int] = Query(None),
-        max_price: Optional[int] = Query(None),
+        min_price: Optional[int] = Query(None, ge=0),
+        max_price: Optional[int] = Query(None, ge=0),
         order_by: Optional[SortField] = Query("id"),
         order: Optional[SortOrder] = Query("asc")):
 
