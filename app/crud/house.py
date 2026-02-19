@@ -1,7 +1,6 @@
 from app.models import House
 from sqlmodel import Session, select, desc, asc
 from typing import Sequence
-from sqlalchemy.exc import NoResultFound
 
 
 def get_filtered_active_houses(session: Session, min_price=None, max_price=None, order_by="id", order="asc") -> Sequence[House]:
@@ -20,11 +19,7 @@ def get_filtered_active_houses(session: Session, min_price=None, max_price=None,
 
 
 def get_house(session: Session, house_id: int) -> House | None:
-    try:
-        stmt = select(House).where(House.active, House.id == house_id)
-        house = session.exec(stmt).one()
-    except NoResultFound:
-        house = None
+    stmt = select(House).where(House.active, House.id == house_id)
+    return session.exec(stmt).first()
 
-    return house
 
