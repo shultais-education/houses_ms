@@ -3,9 +3,7 @@ from fastapi import HTTPException
 from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
-from app.crud import house as crud_house
-from app.api.dependencies.houses import HouseFiltersDep
-from app.api.dependencies.database import DBSessionDep
+from app.api.dependencies.houses import HouseFiltersDep, HouseRepositoryDep
 from app.api.dependencies.cache import CacheDep
 
 
@@ -18,7 +16,7 @@ SortOrder = Literal["asc", "desc"]
 
 @houses_router.get("", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
-        session: DBSessionDep,
+        house_repository: HouseRepositoryDep,
         cache: CacheDep,
         filters: HouseFiltersDep,
         order_by: Optional[SortField] = Query("id", title="Поля сортировки", description="Допустимые значения: id, price, name"),
@@ -28,13 +26,13 @@ async def get_houses(
 
     await cache.setex(name="TEST-50", value="TEST VALUE-60", time=60)
 
-    houses = await crud_house.get_filtered_active_houses(session, filters=filters, order_by=order_by, order=order)
+    houses = await house_repository.get_houses(filters=filters, order_by=order_by, order=order)
 
     return houses
 
 
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema, summary="Возвращает дом")
-async def get_house(session: DBSessionDep, house_id: int):
+async def get_house(house_repository: HouseRepositoryDep, house_id: int):
     """
     Возвращает подробную информацию о доме:
        - **id**: идентификатор
@@ -42,7 +40,7 @@ async def get_house(session: DBSessionDep, house_id: int):
        - **description**: короткое описание
        - **price**: цена дома в рублях
     """
-    house = await crud_house.get_house(session=session, house_id=house_id)
+    house = await house_repository.get_house(house_id=house_id)
 
     if not house:
         raise HTTPException(status_code=404, detail=f"House {house_id} not found")
