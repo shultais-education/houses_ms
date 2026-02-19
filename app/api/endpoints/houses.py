@@ -17,13 +17,14 @@ SortOrder = Literal["asc", "desc"]
 @houses_router.get("/", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
         session: DBSessionDep,
+        search: Optional[str] = Query(None, min_length=3, title="Поиск по названию"),
         min_price: Optional[int] = Query(None, ge=0, title="Минимальная цена"),
         max_price: Optional[int] = Query(None, ge=0, title="Максимальная цена"),
         order_by: Optional[SortField] = Query("id", title="Поля сортировки", description="Допустимые значения: id, price, name"),
         order: Optional[SortOrder] = Query("asc", title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
 
-    houses = crud_house.get_filtered_active_houses(session, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
+    houses = crud_house.get_filtered_active_houses(session, search=search, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
 
     return houses
 
