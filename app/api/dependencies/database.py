@@ -5,4 +5,3 @@ from app.db.session import get_async_session
 
 
 DBSessionDep: TypeAlias = Annotated[AsyncSession, Depends(get_async_session)]
-
