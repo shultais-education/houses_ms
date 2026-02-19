@@ -13,7 +13,7 @@ class House(SQLModel, table=True):
 
     square: int | None = Field(default=None)
     rooms: int | None = Field(default=1)
-    bathrooms: int = Field(default=1, nullable=True)
+    bathrooms: int | None = Field(default=1, nullable=True)
     free_parking: bool = Field(
         default=False,
         sa_column=sa.Column(sa.Boolean, server_default=sa.text("FALSE"), nullable=False))
