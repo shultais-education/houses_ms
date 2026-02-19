@@ -1,5 +1,5 @@
 from app.models import House
-from sqlmodel import Session, select, desc, asc
+from sqlmodel import Session, select, desc, asc, or_
 from typing import Sequence
 
 
@@ -7,7 +7,8 @@ def get_filtered_active_houses(session: Session, search=None, min_price=None, ma
     stmt = select(House).where(House.active)
 
     if search:
-        stmt = stmt.where(House.name.icontains(search))
+        # stmt = stmt.where(House.description.icontains(search) | House.name.icontains(search))
+        stmt = stmt.where(or_(House.description.icontains(search), House.name.icontains(search)))
 
     if min_price is not None:
         stmt = stmt.where(House.price >= min_price)
