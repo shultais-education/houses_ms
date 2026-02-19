@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi import HTTPException
 from app.data import houses_list
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
@@ -15,4 +16,4 @@ async def house_detail(house_id: int):
         if house["id"] == house_id:
             return house
 
-    return {"message": f"Дом не найден"}
+    raise HTTPException(status_code=404, detail=f"House {house_id} not found")
