@@ -1,15 +1,20 @@
 from fastapi import FastAPI
+from redis.asyncio import Redis
 from app.api.endpoints.houses import houses_router
 from contextlib import asynccontextmanager
 from app.db.session import async_engine
+from app.core.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Начало")
+    redis_client = await Redis.from_url(str(settings.redis_url), encoding="utf-8", decode_responses=True)
+    app.state.redis = redis_client
 
     yield
-    async_engine.dispose()
+
+    await async_engine.dispose()
+    await redis_client.close()
 
 
 app = FastAPI(lifespan=lifespan, title="API домов", description="Микросервис для управления домами")

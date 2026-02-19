@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
+from fastapi import Request
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
 from app.api.deps import DBSessionDep
@@ -17,12 +18,16 @@ SortOrder = Literal["asc", "desc"]
 @houses_router.get("", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
         session: DBSessionDep,
+        request: Request,
         search: Optional[str] = Query(None, min_length=3, title="Поиск по названию"),
         min_price: Optional[int] = Query(None, ge=0, title="Минимальная цена"),
         max_price: Optional[int] = Query(None, ge=0, title="Максимальная цена"),
         order_by: Optional[SortField] = Query("id", title="Поля сортировки", description="Допустимые значения: id, price, name"),
         order: Optional[SortOrder] = Query("asc", title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
+
+    redis = request.app.state.redis
+    await redis.setex(name="TEST", value="TEST VALUE", time=60)
 
     houses = await crud_house.get_filtered_active_houses(session, search=search, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
 
