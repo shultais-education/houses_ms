@@ -22,7 +22,7 @@ async def get_houses(
         order_by: Optional[SortField] = Query("id"),
         order: Optional[SortOrder] = Query("asc")):
 
-    houses = get_active_houses(session)
+    houses = get_active_houses(session, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
 
     return houses
 
