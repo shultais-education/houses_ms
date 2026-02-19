@@ -14,7 +14,7 @@ SortField = Literal["id", "price", "name"]
 SortOrder = Literal["asc", "desc"]
 
 
-@houses_router.get("/", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
+@houses_router.get("", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
         session: DBSessionDep,
         search: Optional[str] = Query(None, min_length=3, title="Поиск по названию"),
