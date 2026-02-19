@@ -1,9 +1,10 @@
 from app.models import House
-from sqlmodel import Session, select, desc, asc, or_
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select, desc, asc, or_
 from typing import Sequence
 
 
-def get_filtered_active_houses(session: Session, search=None, min_price=None, max_price=None, order_by="id", order="asc") -> Sequence[House]:
+async def get_filtered_active_houses(session: AsyncSession, search=None, min_price=None, max_price=None, order_by="id", order="asc") -> Sequence[House]:
     stmt = select(House).where(House.active)
 
     if search:
@@ -19,11 +20,11 @@ def get_filtered_active_houses(session: Session, search=None, min_price=None, ma
     ordering = desc if order == "desc" else asc
     stmt = stmt.order_by(ordering(order_by))
 
-    return session.exec(stmt).all()
+    result = await session.execute(stmt)
+    return result.scalars().all()
 
 
-def get_house(session: Session, house_id: int) -> House | None:
+async def get_house(session: AsyncSession, house_id: int) -> House | None:
     stmt = select(House).where(House.active, House.id == house_id)
-    return session.exec(stmt).first()
-
-
+    result = await session.execute(stmt)
+    return result.scalars().first()

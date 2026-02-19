@@ -24,7 +24,7 @@ async def get_houses(
         order: Optional[SortOrder] = Query("asc", title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
 
-    houses = crud_house.get_filtered_active_houses(session, search=search, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
+    houses = await crud_house.get_filtered_active_houses(session, search=search, min_price=min_price, max_price=max_price, order_by=order_by, order=order)
 
     return houses
 
@@ -38,7 +38,7 @@ async def get_house(session: DBSessionDep, house_id: int):
        - **description**: короткое описание
        - **price**: цена дома в рублях
     """
-    house = crud_house.get_house(session=session, house_id=house_id)
+    house = await crud_house.get_house(session=session, house_id=house_id)
 
     if not house:
         raise HTTPException(status_code=404, detail=f"House {house_id} not found")
