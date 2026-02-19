@@ -1,12 +1,10 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
-from app.data import houses_list
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
 from app.api.deps import DBSessionDep
-from app.crud.houses import get_active_houses
-
+from app.crud.houses import get_active_houses, get_active_house
 
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
@@ -30,9 +28,10 @@ async def get_houses(
 
 
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema)
-async def get_house(house_id: int):
-    for house in houses_list:
-        if house["id"] == house_id and house["active"]:
-            return house
+async def get_house(session: DBSessionDep, house_id: int):
+    house = get_active_house(session=session, house_id=house_id)
+
+    if house is not None:
+        return house
 
     raise HTTPException(status_code=404, detail=f"House {house_id} not found")
