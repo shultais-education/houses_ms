@@ -18,7 +18,8 @@ class HouseService:
         ...
 
     async def get_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
-        ...
+        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
 
     async def get_active_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
-        ...
+        # Фильтр по активным домам
+        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)

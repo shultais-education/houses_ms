@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
-from app.api.dependencies.houses import HouseFiltersDep, HouseRepositoryDep
+from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
 from app.api.dependencies.cache import CacheServiceDep
 
 
@@ -16,7 +16,7 @@ SortOrder = Literal["asc", "desc"]
 
 @houses_router.get("", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
-        house_repository: HouseRepositoryDep,
+        house_service: HouseServiceDep,
         cache: CacheServiceDep,
         filters: HouseFiltersDep,
         order_by: Optional[SortField] = Query("id", title="Поля сортировки", description="Допустимые значения: id, price, name"),
@@ -24,14 +24,14 @@ async def get_houses(
     ):
 
     await cache.set(key="TEST-50", value="TEST VALUE-60", ttl=60)
-    houses = await house_repository.get_houses(filters=filters, order_by=order_by, order=order)
+    houses = await house_service.get_houses(filters=filters, order_by=order_by, order=order)
     return houses
 
 
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema, summary="Возвращает дом")
 async def get_house(
         cache: CacheServiceDep,
-        house_repository: HouseRepositoryDep, house_id: int):
+        house_service: HouseServiceDep, house_id: int):
     """
     Возвращает подробную информацию о доме:
        - **id**: идентификатор
@@ -39,7 +39,7 @@ async def get_house(
        - **description**: короткое описание
        - **price**: цена дома в рублях
     """
-    house = await house_repository.get_house(house_id=house_id)
+    house = await house_service.get_house(house_id=house_id)
     value = await cache.get(key="TEST-50")
 
     if not house:
