@@ -1,0 +1,24 @@
+from app.models import House
+from app.repositories.houses import HouseRepository
+from app.services.cache import CacheService
+from sqlalchemy import Sequence
+
+
+class HouseService:
+    CACHE_TTL = 60
+
+    def __init__(self, repository: HouseRepository, cache: CacheService):
+        self.repository = repository
+        self.cache = cache
+
+    async def get_house(self, house_id: int) -> House:
+        ...
+
+    async def get_active_house(self, house_id: int) -> House:
+        ...
+
+    async def get_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
+        ...
+
+    async def get_active_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
+        ...
