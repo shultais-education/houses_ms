@@ -39,7 +39,7 @@ async def get_house(
        - **description**: короткое описание
        - **price**: цена дома в рублях
     """
-    house = await house_service.get_house(house_id=house_id)
+    house = await house_service.get_active_house(house_id=house_id)
     value = await cache.get(key="TEST-50")
 
     if not house:
