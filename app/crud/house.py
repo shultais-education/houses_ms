@@ -3,7 +3,7 @@ from sqlmodel import Session, select, desc, asc
 from typing import Sequence
 
 
-def get_active_houses(session: Session, min_price=None, max_price=None, order_by="id", order="asc") -> Sequence[House]:
+def get_filtered_active_houses(session: Session, min_price=None, max_price=None, order_by="id", order="asc") -> Sequence[House]:
     stmt = select(House).where(House.active)
 
     if min_price is not None:
@@ -18,5 +18,5 @@ def get_active_houses(session: Session, min_price=None, max_price=None, order_by
     return session.exec(stmt).all()
 
 
-def get_active_house(session: Session, house_id: int) -> House | None:
+def get_house(session: Session, house_id: int) -> House | None:
     return session.get(House, house_id)
