@@ -5,7 +5,8 @@ from app.data import houses_list
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal
 from app.api.deps import DBSessionDep
-from sqlmodel import text
+from app.crud.houses import get_active_houses
+
 
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
@@ -23,19 +24,7 @@ async def get_houses(
         order_by: Optional[SortField] = Query("id"),
         order: Optional[SortOrder] = Query("asc")):
 
-    print(session.exec(text("SELECT 1")))
-
-    houses = [house for house in houses_list if house["active"]]
-
-    if min_price is not None:
-        houses = [house for house in houses if house["price"] >= min_price]
-
-    if max_price is not None:
-        houses = [house for house in houses if house["price"] <= max_price]
-
-    # Сортировка
-    reverse = order == "desc"
-    houses.sort(key=lambda h: h[order_by], reverse=reverse)
+    houses = get_active_houses(session)
 
     return houses
 
