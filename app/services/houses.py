@@ -5,7 +5,7 @@ from sqlalchemy import Sequence
 
 
 class HouseService:
-    CACHE_TTL = 60
+    CACHE_TTL = 600
 
     def __init__(self, repository: HouseRepository, cache: CacheService = None):
         self.repository = repository

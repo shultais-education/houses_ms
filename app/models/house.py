@@ -32,11 +32,11 @@ class House(SQLModel, table=True):
     )
 
     # Дополнительные атрибуты
-    deposit: int = Field(
+    deposit: int | None = Field(
         default=None,
         sa_column=sa.Column(sa.Integer, nullable=True)
     )
-    square: int = Field(
+    square: int  | None = Field(
         default=None,
         sa_column=sa.Column(sa.Integer, nullable=True)
     )
@@ -51,6 +51,6 @@ class House(SQLModel, table=True):
     free_parking: bool = Field(
         default=False,
         sa_column=sa.Column(sa.Boolean, server_default=sa.text("FALSE"), nullable=False))
-    pets_allowed: bool = Field(
+    pets_allowed: bool | None = Field(
         default=None,
         sa_column=sa.Column(sa.Boolean, nullable=True))
