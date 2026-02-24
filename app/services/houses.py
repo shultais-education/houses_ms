@@ -44,6 +44,7 @@ class HouseService:
         return None
 
     async def get_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
+        order_by, order = self._get_ordering(order_by, order)
         return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
 
     async def get_active_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
@@ -51,7 +52,16 @@ class HouseService:
             filters = []
 
         filters.append(House.active == True)
+        order_by, order = self._get_ordering(order_by, order)
 
+        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
+
+    async def delete_house(self, house_id: int) -> None:
+        await self.repository.delete_house(house_id=house_id)
+        await self.cache.delete(key=self._house_key(house_id))
+
+    @staticmethod
+    def _get_ordering(order_by, order):
         if order_by is None and order is None:
             order_by, order = "quality_score", "desc"
         elif order_by is not None and order is None:
@@ -59,8 +69,4 @@ class HouseService:
         elif order_by is None and order is not None:
             order_by = "id"
 
-        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
-
-    async def delete_house(self, house_id: int) -> None:
-        await self.repository.delete_house(house_id=house_id)
-        await self.cache.delete(key=self._house_key(house_id))
+        return order_by, order
