@@ -2,6 +2,7 @@ from app.models import House
 from app.repositories.houses import HouseRepository
 from app.services.cache import CacheService
 from sqlalchemy import Sequence
+from pydantic_core import ValidationError
 
 
 class HouseService:
@@ -24,8 +25,11 @@ class HouseService:
             house = await self.cache.get(key=key)
 
         if house:
-            house = self.repository.model.model_validate(house)
-            return house
+            try:
+                house = self.repository.model.model_validate(house)
+                return house
+            except ValidationError:
+                ...
 
         house = await self.repository.get_house(house_id=house_id)
 
