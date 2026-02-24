@@ -52,6 +52,13 @@ class HouseService:
 
         filters.append(House.active == True)
 
+        if order_by is None and order is None:
+            order_by, order = "quality_score", "desc"
+        elif order_by is not None and order is None:
+            order = "asc"
+        elif order_by is None and order is not None:
+            order_by = "id"
+
         return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
 
     async def delete_house(self, house_id: int) -> None:
