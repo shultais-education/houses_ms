@@ -11,11 +11,20 @@ class House(SQLModel, table=True):
     )
     description: str = Field(
         default="",
+        max_length=255,
         sa_column=sa.Column(sa.String, server_default=sa.text("''"), nullable=False)
+    )
+    text: str = Field(
+        default="",
+        sa_column=sa.Column(sa.TEXT, server_default=sa.text("''"), nullable=False)
     )
     price: int = Field(
         default=0,
         sa_column=sa.Column(sa.Integer, server_default=sa.text("0"), nullable=False, index=True)
+    )
+    quality_score: float = Field(
+        default=0,
+        sa_column=sa.Column(sa.FLOAT, server_default=sa.text("0"), nullable=False, index=True)
     )
     active: bool = Field(
         default=False,
@@ -23,6 +32,10 @@ class House(SQLModel, table=True):
     )
 
     # Дополнительные атрибуты
+    deposit: int = Field(
+        default=None,
+        sa_column=sa.Column(sa.Integer, nullable=True)
+    )
     square: int = Field(
         default=None,
         sa_column=sa.Column(sa.Integer, nullable=True)
@@ -38,3 +51,6 @@ class House(SQLModel, table=True):
     free_parking: bool = Field(
         default=False,
         sa_column=sa.Column(sa.Boolean, server_default=sa.text("FALSE"), nullable=False))
+    pets_allowed: bool = Field(
+        default=None,
+        sa_column=sa.Column(sa.Boolean, nullable=True))
