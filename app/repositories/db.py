@@ -2,7 +2,7 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
-from sqlmodel import select, delete, desc, asc
+from sqlmodel import select, delete, desc, asc, and_
 
 
 class DBRepository:
@@ -20,7 +20,7 @@ class DBRepository:
         stmt = select(self.model)
 
         if filters:
-            stmt = filters.build_query(stmt)
+            stmt = stmt.where(and_(*filters))
 
         ordering = desc if order == "desc" else asc
         stmt = stmt.order_by(ordering(order_by))

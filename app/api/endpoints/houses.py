@@ -21,7 +21,7 @@ async def get_houses(
         order: Optional[SortOrder] = Query("asc", title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
 
-    houses = await house_service.get_houses(filters=filters, order_by=order_by, order=order)
+    houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
     return houses
 
 
