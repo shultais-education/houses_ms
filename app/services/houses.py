@@ -52,3 +52,4 @@ class HouseService:
 
     async def delete_house(self, house_id: int) -> None:
         await self.repository.delete_house(house_id=house_id)
+        await self.cache.delete(key=self._house_key(house_id))

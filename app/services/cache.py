@@ -19,3 +19,6 @@ class CacheService:
         value = json.dumps(value)
         await self.redis_client.setex(name=key, value=value, time=ttl)
         return True
+
+    async def delete(self, key):
+        await self.redis_client.delete(key)
