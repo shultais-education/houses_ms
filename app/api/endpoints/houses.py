@@ -40,3 +40,9 @@ async def get_house(house_service: HouseServiceDep, house_id: int):
         raise HTTPException(status_code=404, detail=f"House {house_id} not found")
 
     return house
+
+
+@houses_router.get("/{house_id}/delete", summary="Удаляет дом")
+async def delete_house(house_service: HouseServiceDep, house_id: int):
+    await house_service.delete_house(house_id=house_id)
+    return {"message": f"House {house_id} deleted successfully", "status": "ok"}

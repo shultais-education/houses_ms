@@ -2,7 +2,7 @@ from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
-from sqlmodel import select, desc, asc
+from sqlmodel import select, delete, desc, asc
 
 
 class DBRepository:
@@ -27,3 +27,8 @@ class DBRepository:
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def delete_one(self, id_: int):
+        stmt = delete(self.model).where(self.model.id == id_)
+        await self.session.execute(stmt)
+        await self.session.commit()
