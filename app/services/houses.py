@@ -33,6 +33,9 @@ class HouseService:
         await self._clear_house_cache(house_id=house.id)
         return house
 
+    async def get_house_for_update(self, house_id: int) -> House:
+        return await self.repository.get_house(house_id=house_id)
+
     async def get_house(self, house_id: int) -> House:
         # Запросить дом из кэша
         key = self._house_key(house_id)

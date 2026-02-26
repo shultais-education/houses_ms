@@ -67,7 +67,7 @@ async def delete_house(house_service: HouseServiceDep, house_id: int):
 
 @houses_router.patch("/{house_id}", summary="Изменяет дом", response_model=HouseDetailSchema)
 async def update_house(house_service: HouseServiceDep, house_id: int, house_data: HouseUpdateSchema):
-    house = await house_service.get_house(house_id=house_id)
+    house = await house_service.get_house_for_update(house_id=house_id)
 
     if not house:
         raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
