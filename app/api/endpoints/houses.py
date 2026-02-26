@@ -56,7 +56,7 @@ async def get_house(house_service: HouseServiceDep, house_id: int):
     responses={404: {'description': 'Дом не найден'}}
 )
 async def delete_house(house_service: HouseServiceDep, house_id: int):
-    house = await house_service.get_active_house(house_id=house_id)
+    house = await house_service.get_house(house_id=house_id)
 
     if not house:
         raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
