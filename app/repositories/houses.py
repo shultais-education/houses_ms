@@ -5,6 +5,9 @@ from sqlalchemy import Sequence
 
 class HouseRepository(DBRepository):
 
+    async def create_house(self, house: House) -> House:
+        return await self.create_one(obj=house)
+
     async def get_house(self, house_id: int) -> House:
         return await self.get_one(id_=house_id)
 

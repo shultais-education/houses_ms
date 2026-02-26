@@ -3,6 +3,10 @@ from typing import Type
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
 from sqlmodel import select, delete, desc, asc, and_
+from typing import TypeVar
+
+
+DBModel = TypeVar("DBModel", bound=SQLModel)
 
 
 class DBRepository:
@@ -10,6 +14,12 @@ class DBRepository:
     def __init__(self, model: Type[SQLModel], session: AsyncSession):
         self.model = model
         self.session = session
+
+    async def create_one(self, obj: DBModel) -> DBModel:
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
 
     async def get_one(self, id_: int):
         stmt = select(self.model).where(self.model.id == id_)

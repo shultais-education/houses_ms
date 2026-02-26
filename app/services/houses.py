@@ -16,6 +16,10 @@ class HouseService:
     def _house_key(house_id):
         return f"house:{house_id}"
 
+    async def create_house(self, house: House) -> House:
+        house.active = False
+        return await self.repository.create_house(house=house)
+
     async def get_house(self, house_id: int) -> House:
         # Запросить дом из кэша
         key = self._house_key(house_id)
