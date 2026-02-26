@@ -23,4 +23,4 @@ class HouseItemSchema(BaseModel):
 
 
 class HouseCreateSchema(BaseModel):
-    name: str
+    name: str = Field(min_length=3, max_length=100)
