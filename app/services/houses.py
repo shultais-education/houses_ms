@@ -1,6 +1,7 @@
 from app.models import House
 from app.repositories.houses import HouseRepository
 from app.services.cache import CacheService
+from app.schemas.house import HouseCreateSchema
 from sqlalchemy import Sequence
 from pydantic_core import ValidationError
 
@@ -15,6 +16,10 @@ class HouseService:
     @staticmethod
     def _house_key(house_id):
         return f"house:{house_id}"
+
+    @staticmethod
+    def build_house_from_schema(data: HouseCreateSchema) -> House:
+        return House.model_validate(data)
 
     async def create_house(self, house: House) -> House:
         house.active = False

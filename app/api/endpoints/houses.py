@@ -27,8 +27,9 @@ async def get_houses(
 
 @houses_router.post("", response_model=HouseDetailSchema, summary="Создает дом")
 async def create_houses(house_service: HouseServiceDep, house_data: HouseCreateSchema):
-    print(house_data)
-    return {}
+    house = house_service.build_house_from_schema(data=house_data)
+    house = await house_service.create_house(house=house)
+    return house
 
 
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema, summary="Возвращает дом")
