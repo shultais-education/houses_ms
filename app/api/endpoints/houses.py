@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
-from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema
+from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema, HouseUpdateSchema
 from typing import List, Optional, Literal, Union
 from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
 from starlette import status
@@ -63,3 +63,15 @@ async def delete_house(house_service: HouseServiceDep, house_id: int):
 
     await house_service.delete_house(house_id=house_id)
     return None
+
+
+@houses_router.patch("/{house_id}", summary="Изменяет дом", response_model=HouseDetailSchema)
+async def update_house(house_service: HouseServiceDep, house_id: int, house_data: HouseUpdateSchema):
+    print(house_data)
+
+    house = await house_service.get_house(house_id=house_id)
+
+    if not house:
+        raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
+
+    return house
