@@ -4,7 +4,7 @@ from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema
 from typing import List, Optional, Literal, Union
 from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
-
+from starlette import status
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
 
@@ -42,7 +42,7 @@ async def get_house(house_service: HouseServiceDep, house_id: int):
     return house
 
 
-@houses_router.get("/{house_id}/delete", summary="Удаляет дом")
+@houses_router.delete("/{house_id}", summary="Удаляет дом", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_house(house_service: HouseServiceDep, house_id: int):
     await house_service.delete_house(house_id=house_id)
-    return {"message": f"House {house_id} deleted successfully", "status": "ok"}
+    return None
