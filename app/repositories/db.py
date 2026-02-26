@@ -1,12 +1,13 @@
-from typing import Type
-
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
 from sqlmodel import select, delete, desc, asc, and_
-from typing import TypeVar
+from typing import TypeVar, Type
 
 
 DBModel = TypeVar("DBModel", bound=SQLModel)
+PModel = TypeVar("PModel", bound=BaseModel)
+
 
 
 class DBRepository:
@@ -16,6 +17,13 @@ class DBRepository:
         self.session = session
 
     async def create_one(self, obj: DBModel) -> DBModel:
+        self.session.add(obj)
+        await self.session.commit()
+        await self.session.refresh(obj)
+        return obj
+
+    async def update_one(self, obj: DBModel, data: PModel) -> DBModel:
+        obj.sqlmodel_update(data.model_dump(exclude_unset=True))
         self.session.add(obj)
         await self.session.commit()
         await self.session.refresh(obj)

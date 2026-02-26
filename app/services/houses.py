@@ -1,7 +1,7 @@
 from app.models import House
 from app.repositories.houses import HouseRepository
 from app.services.cache import CacheService
-from app.schemas.house import HouseCreateSchema
+from app.schemas.house import HouseCreateSchema, HouseUpdateSchema
 from sqlalchemy import Sequence
 from pydantic_core import ValidationError
 
@@ -21,9 +21,17 @@ class HouseService:
     def build_house_from_schema(data: HouseCreateSchema) -> House:
         return House.model_validate(data)
 
+    async def _clear_house_cache(self, house_id: int):
+        await self.cache.delete(key=self._house_key(house_id))
+
     async def create_house(self, house: House) -> House:
         house.active = False
         return await self.repository.create_house(house=house)
+
+    async def update_house(self, house: House, house_data: HouseUpdateSchema) -> House:
+        house = await self.repository.update_house(house=house, house_data=house_data)
+        await self._clear_house_cache(house_id=house.id)
+        return house
 
     async def get_house(self, house_id: int) -> House:
         # Запросить дом из кэша
@@ -71,7 +79,7 @@ class HouseService:
 
     async def delete_house(self, house_id: int) -> None:
         await self.repository.delete_house(house_id=house_id)
-        await self.cache.delete(key=self._house_key(house_id))
+        await self._clear_house_cache(house_id=house_id)
 
     @staticmethod
     def _get_ordering(order_by, order):
