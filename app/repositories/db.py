@@ -30,9 +30,7 @@ class DBRepository:
         return obj
 
     async def get_one(self, id_: int):
-        stmt = select(self.model).where(self.model.id == id_)
-        result = await self.session.execute(stmt)
-        return result.scalars().first()
+        return await self.session.get(self.model, id_)
 
     async def get_many(self, filters=None, order_by="id", order="asc"):
         stmt = select(self.model)
