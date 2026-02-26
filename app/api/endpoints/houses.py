@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Query
-from app.schemas.house import HouseDetailSchema, HouseItemSchema
+from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema
 from typing import List, Optional, Literal, Union
 from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
 from starlette import status
@@ -23,6 +23,12 @@ async def get_houses(
 
     houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
     return houses
+
+
+@houses_router.post("", response_model=HouseDetailSchema, summary="Создает дом")
+async def create_houses(house_service: HouseServiceDep, house_data: HouseCreateSchema):
+    print(house_data)
+    return {}
 
 
 @houses_router.get("/{house_id}", response_model=HouseDetailSchema, summary="Возвращает дом")

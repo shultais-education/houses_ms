@@ -1,14 +1,6 @@
 from pydantic import BaseModel, Field
 
 
-class HouseFullSchema(BaseModel):
-    id: int
-    name: str
-    description: str
-    price: int
-    active: bool
-
-
 class HouseDetailSchema(BaseModel):
     id: int
     name: str = Field(description='Название дома')
@@ -28,3 +20,7 @@ class HouseItemSchema(BaseModel):
     id: int
     name: str
     price: int | None = None
+
+
+class HouseCreateSchema(BaseModel):
+    name: str
