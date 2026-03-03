@@ -72,6 +72,21 @@ async def update_house(house_service: HouseServiceDep, house_id: int, house_data
     if not house:
         raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
 
+    active = house_data.active if house_data.active is not None else house.active
+    price = house_data.price if house_data.price is not None else house.price
+
+    if active and not price:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=[
+                {
+                    "loc": ["body", "price"],
+                    "msg": "Нельзя активировать дом без цены",
+                    "type": "value_error.active_without_price"
+                }
+            ]
+        )
+
     house = await house_service.update_house(house=house, house_data=house_data)
 
     return house
