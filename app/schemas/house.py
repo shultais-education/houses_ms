@@ -55,3 +55,10 @@ class HouseUpdateSchema(BaseModel):
             raise ValueError('Депозит не может быть больше цены')
 
         return self
+
+    @model_validator(mode='after')
+    def check_rooms(self) -> Self:
+        if (self.bathrooms is not None and self.rooms is not None) and self.bathrooms > self.rooms:
+            raise ValueError('Количество ванных комнат не может быть больше количества комнат.')
+
+        return self
