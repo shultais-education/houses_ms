@@ -1,5 +1,8 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, model_validator
+from pydantic import Field
+from typing_extensions import Self
 
 
 class HouseDetailSchema(BaseModel):
@@ -39,3 +42,16 @@ class HouseUpdateSchema(BaseModel):
     free_parking: Optional[bool] = Field(default=None, description="Бесплатная парковка")
     pets_allowed: Optional[bool] = Field(default=None, description="Разрешено с домашними животными")
     active: Optional[bool] = Field(default=None, description="Активный (доступен для бронирования)")
+
+    @model_validator(mode='after')
+    def check_deposit_le_price(self) -> Self:
+        if self.price is not None and self.deposit is None:
+            raise ValueError('При указании цены также нужно передавать и депозит')
+
+        if self.price is None and self.deposit is not None:
+            raise ValueError('При указании депозита также нужно передавать и цену')
+
+        if self.deposit is not None and self.deposit > self.price:
+            raise ValueError('Депозит не может быть больше цены')
+
+        return self
