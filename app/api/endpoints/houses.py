@@ -4,6 +4,7 @@ from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema, HouseUpdateSchema
 from typing import List, Optional, Literal, Union
 from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
+from app.api.dependencies.pagination import PaginatorFiltersDep
 from starlette import status
 
 houses_router = APIRouter(prefix="/houses", tags=["houses"])
@@ -17,9 +18,12 @@ SortOrder = Literal["asc", "desc"]
 async def get_houses(
         house_service: HouseServiceDep,
         filters: HouseFiltersDep,
+        pagination: PaginatorFiltersDep,
         order_by: Union[Optional[SortField], None] = Query(None, title="Поля сортировки", description="Допустимые значения: id, price, name"),
         order: Union[Optional[SortOrder], None] = Query(None, title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
+
+    print(pagination)
 
     houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
     return houses
