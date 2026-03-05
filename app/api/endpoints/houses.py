@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from fastapi import HTTPException
 from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema, HouseUpdateSchema
@@ -88,5 +88,19 @@ async def update_house(house_service: HouseServiceDep, house_id: int, house_data
         )
 
     house = await house_service.update_house(house=house, house_data=house_data)
+
+    return house
+
+
+@houses_router.post("/{house_id}/preview", summary="Загружает preview дома")
+async def upload_preview(house_service: HouseServiceDep, house_id: int, uploaded_preview: UploadFile = File()):
+    house = await house_service.get_house(house_id=house_id)
+
+    if not house:
+        raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
+
+    print(uploaded_preview)
+    print(type(uploaded_preview))
+    print(dir(uploaded_preview))
 
     return house
