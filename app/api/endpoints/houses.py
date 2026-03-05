@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from fastapi import HTTPException
 from fastapi import Query
 from app.schemas.house import HouseDetailSchema, HouseItemSchema, HouseCreateSchema, HouseUpdateSchema
+from app.schemas.pagination import PaginatedResponse
 from typing import List, Optional, Literal, Union
 from app.api.dependencies.houses import HouseFiltersDep, HouseServiceDep
 from app.api.dependencies.pagination import PaginatorFiltersDep
@@ -14,7 +15,7 @@ SortField = Literal["id", "price", "name"]
 SortOrder = Literal["asc", "desc"]
 
 
-@houses_router.get("", response_model=List[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
+@houses_router.get("", response_model=PaginatedResponse[HouseItemSchema], summary="Возвращает дома", description="Возвращает список активных домов")
 async def get_houses(
         house_service: HouseServiceDep,
         filters: HouseFiltersDep,
@@ -23,10 +24,15 @@ async def get_houses(
         order: Union[Optional[SortOrder], None] = Query(None, title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
 
-    print(pagination)
-
     houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
-    return houses
+
+    return PaginatedResponse(
+        items=houses,
+        total=0,
+        page=pagination.page,
+        page_size=pagination.page_size,
+        pages=0
+    )
 
 
 @houses_router.post("", response_model=HouseDetailSchema, summary="Создает дом")
