@@ -33,7 +33,7 @@ async def get_houses(
         total=total,
         page=pagination.page,
         page_size=pagination.page_size,
-        pages=0
+        pages=(total + pagination.page_size - 1) // pagination.page_size if total > 0 else 0,
     )
 
 
