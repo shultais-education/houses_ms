@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel
-from sqlmodel import select, delete, desc, asc, and_
+from sqlmodel import select, delete, desc, asc, and_, func
 from typing import TypeVar, Type
 
 
@@ -43,6 +43,15 @@ class DBRepository:
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def count_all(self, filters=None):
+        count_stmt = select(func.count()).select_from(self.model)
+
+        if filters:
+            count_stmt = count_stmt.where(and_(*filters))
+
+        result = await self.session.execute(count_stmt)
+        return result.scalar()
 
     async def delete_one(self, id_: int):
         stmt = delete(self.model).where(self.model.id == id_)

@@ -147,6 +147,14 @@ class HouseService:
 
         return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
 
+    async def get_active_houses_count(self, filters=None) -> int:
+        if filters is None:
+            filters = []
+
+        filters.append(House.active == True)
+
+        return await self.repository.count_houses(filters=filters)
+
     async def delete_house(self, house_id: int) -> None:
         await self.repository.delete_house(house_id=house_id)
         await self._clear_house_cache(house_id=house_id)

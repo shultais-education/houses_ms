@@ -26,9 +26,11 @@ async def get_houses(
 
     houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
 
+    total = await house_service.get_active_houses_count(filters=filters.where_conditions)
+
     return PaginatedResponse(
         items=houses,
-        total=0,
+        total=total,
         page=pagination.page,
         page_size=pagination.page_size,
         pages=0
