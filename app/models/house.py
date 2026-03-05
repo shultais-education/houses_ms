@@ -30,6 +30,11 @@ class House(SQLModel, table=True):
         default=False,
         sa_column=sa.Column(sa.Boolean, server_default=sa.text("FALSE"), nullable=False, index=True)
     )
+    preview: str = Field(
+        default="",
+        max_length=255,
+        sa_column=sa.Column(sa.String, server_default=sa.text("''"), nullable=False)
+    )
 
     # Дополнительные атрибуты
     deposit: int | None = Field(
