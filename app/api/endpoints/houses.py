@@ -99,8 +99,6 @@ async def upload_preview(house_service: HouseServiceDep, house_id: int, uploaded
     if not house:
         raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
 
-    print(uploaded_preview)
-    print(type(uploaded_preview))
-    print(dir(uploaded_preview))
+    house_service.save_preview(file=uploaded_preview.file, original_filename=uploaded_preview.filename)
 
     return house

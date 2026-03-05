@@ -1,6 +1,9 @@
 from pydantic_settings import BaseSettings
 from pydantic import PostgresDsn, RedisDsn
+from pathlib import Path
 
+
+ROOT = Path(__file__).parent.parent.parent
 
 class Settings(BaseSettings):
     # Postgresql
@@ -17,6 +20,9 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB: str = "0"
+
+    MEDIA_ROOT: Path = ROOT / Path("media")
+    MEDIA_URL: str = "http://localhost:8000/media/"
 
     class Config:
         env_file = ".env"

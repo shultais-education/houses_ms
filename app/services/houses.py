@@ -1,3 +1,8 @@
+from uuid import uuid4
+from pathlib import Path
+from datetime import datetime as dt
+from app.core.config import settings
+
 from app.models import House
 from app.repositories.houses import HouseRepository
 from app.services.cache import CacheService
@@ -8,6 +13,7 @@ from pydantic_core import ValidationError
 
 class HouseService:
     CACHE_TTL = 600
+    PREVIEWS_PATH = settings.MEDIA_ROOT / Path("houses/previews")
 
     def __init__(self, repository: HouseRepository, cache: CacheService = None):
         self.repository = repository
@@ -16,6 +22,44 @@ class HouseService:
     @staticmethod
     def _house_key(house_id):
         return f"house:{house_id}"
+
+    @staticmethod
+    def _get_preview_filename(original_filename: str) -> Path:
+        ext = Path(original_filename).suffix
+        return Path(f"{uuid4()}{ext}")
+
+    @staticmethod
+    def _get_preview_dir() -> Path:
+        date_path = Path(dt.now().strftime("%Y/%m/%d"))
+        return HouseService.PREVIEWS_PATH / date_path
+
+    @staticmethod
+    def _get_preview_full_dir() -> Path:
+        return settings.MEDIA_ROOT / HouseService._get_preview_dir()
+
+    @staticmethod
+    def _create_preview_full_dir():
+        HouseService._get_preview_full_dir().mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _get_preview_path(filename: Path) -> Path:
+        preview_dir = HouseService._get_preview_dir()
+        return preview_dir / filename
+
+    @staticmethod
+    def _get_preview_full_path(filename: Path) -> Path:
+        preview_full_dir = HouseService._get_preview_full_dir()
+        return preview_full_dir / filename
+
+    @staticmethod
+    def save_preview(file, original_filename):
+        HouseService._create_preview_full_dir()
+
+        filename = HouseService._get_preview_filename(original_filename)
+        preview_full_path = HouseService._get_preview_full_path(filename)
+
+        with open(preview_full_path, "wb") as f:
+            f.write(file.read())
 
     @staticmethod
     def build_house_from_schema(data: HouseCreateSchema) -> House:
