@@ -1,7 +1,7 @@
 from app.models import House
 from app.repositories.db import DBRepository
 from sqlalchemy import Sequence
-from app.schemas.house import HouseUpdateSchema
+from app.schemas.house import HouseUpdateSchema, HousePreviewSchema
 
 
 class HouseRepository(DBRepository):
@@ -20,3 +20,6 @@ class HouseRepository(DBRepository):
 
     async def delete_house(self, house_id: int) -> None:
         await self.delete_one(id_=house_id)
+
+    async def add_preview(self, house: House, preview: HousePreviewSchema) -> House:
+        return await self.update_one(obj=house, data=preview)

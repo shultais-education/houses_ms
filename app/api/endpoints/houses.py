@@ -92,13 +92,13 @@ async def update_house(house_service: HouseServiceDep, house_id: int, house_data
     return house
 
 
-@houses_router.post("/{house_id}/preview", summary="Загружает preview дома")
+@houses_router.post("/{house_id}/preview", response_model=HouseDetailSchema, summary="Загружает preview дома")
 async def upload_preview(house_service: HouseServiceDep, house_id: int, uploaded_preview: UploadFile = File()):
-    house = await house_service.get_house(house_id=house_id)
+    house = await house_service.get_house_for_update(house_id=house_id)
 
     if not house:
         raise HTTPException(status_code=404, detail=f"Дом {house_id} не найден")
 
-    house_service.save_preview(file=uploaded_preview.file, original_filename=uploaded_preview.filename)
+    house = await house_service.save_preview(house=house, file=uploaded_preview.file, original_filename=uploaded_preview.filename)
 
     return house

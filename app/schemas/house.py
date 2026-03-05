@@ -10,6 +10,7 @@ class HouseDetailSchema(BaseModel):
     name: str = Field(description='Название дома')
     description: str = Field(description='Краткое описание')
     price: int = Field(description='Цена в рублях', examples=['5000', '10000'])
+    preview: Optional[str] = Field(default="", description="Фото дома")
 
     text: str
     deposit: int | None
@@ -62,3 +63,7 @@ class HouseUpdateSchema(BaseModel):
             raise ValueError('Количество ванных комнат не может быть больше количества комнат.')
 
         return self
+
+
+class HousePreviewSchema(BaseModel):
+    preview: Optional[str] = Field(default=None)

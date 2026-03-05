@@ -6,14 +6,14 @@ from app.core.config import settings
 from app.models import House
 from app.repositories.houses import HouseRepository
 from app.services.cache import CacheService
-from app.schemas.house import HouseCreateSchema, HouseUpdateSchema
+from app.schemas.house import HouseCreateSchema, HouseUpdateSchema, HousePreviewSchema
 from sqlalchemy import Sequence
 from pydantic_core import ValidationError
 
 
 class HouseService:
     CACHE_TTL = 600
-    PREVIEWS_PATH = settings.MEDIA_ROOT / Path("houses/previews")
+    PREVIEWS_PATH = Path("houses/previews")
 
     def __init__(self, repository: HouseRepository, cache: CacheService = None):
         self.repository = repository
@@ -51,8 +51,7 @@ class HouseService:
         preview_full_dir = HouseService._get_preview_full_dir()
         return preview_full_dir / filename
 
-    @staticmethod
-    def save_preview(file, original_filename):
+    async def save_preview(self, house, file, original_filename) -> House:
         HouseService._create_preview_full_dir()
 
         filename = HouseService._get_preview_filename(original_filename)
@@ -60,6 +59,14 @@ class HouseService:
 
         with open(preview_full_path, "wb") as f:
             f.write(file.read())
+
+        house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
+            "preview": str(HouseService._get_preview_path(filename))
+        }))
+
+        await self._clear_house_cache(house_id=house.id)
+
+        return house
 
     @staticmethod
     def build_house_from_schema(data: HouseCreateSchema) -> House:
