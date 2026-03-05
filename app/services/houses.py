@@ -134,18 +134,18 @@ class HouseService:
 
         return None
 
-    async def get_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
+    async def get_houses(self, filters=None, order_by="id", order="asc", page=1, page_size=10) -> Sequence[House]:
         order_by, order = self._get_ordering(order_by, order)
-        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
+        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order, page=1, page_size=10)
 
-    async def get_active_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
+    async def get_active_houses(self, filters=None, order_by="id", order="asc", page=1, page_size=10) -> Sequence[House]:
         if filters is None:
             filters = []
 
         filters.append(House.active == True)
         order_by, order = self._get_ordering(order_by, order)
 
-        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order)
+        return await self.repository.get_houses(filters=filters, order_by=order_by, order=order, page=page, page_size=page_size)
 
     async def get_active_houses_count(self, filters=None) -> int:
         if filters is None:

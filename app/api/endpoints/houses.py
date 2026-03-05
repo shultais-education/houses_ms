@@ -24,7 +24,11 @@ async def get_houses(
         order: Union[Optional[SortOrder], None] = Query(None, title="Направление сортировки", description="Допустимые значения: asc, desc")
     ):
 
-    houses = await house_service.get_active_houses(filters=filters.where_conditions, order_by=order_by, order=order)
+    houses = await house_service.get_active_houses(
+        filters=filters.where_conditions,
+        order_by=order_by,
+        order=order,
+        page=pagination.page, page_size=pagination.page_size)
 
     total = await house_service.get_active_houses_count(filters=filters.where_conditions)
 

@@ -15,8 +15,8 @@ class HouseRepository(DBRepository):
     async def get_house(self, house_id: int) -> House:
         return await self.get_one(id_=house_id)
 
-    async def get_houses(self, filters=None, order_by="id", order="asc") -> Sequence[House]:
-        return await self.get_many(filters=filters, order_by=order_by, order=order)
+    async def get_houses(self, filters=None, order_by="id", order="asc", page=1, page_size=10) -> Sequence[House]:
+        return await self.get_many(filters=filters, order_by=order_by, order=order, page=page, page_size=page_size)
 
     async def count_houses(self, filters=None) -> int:
         return await self.count_all(filters=filters)

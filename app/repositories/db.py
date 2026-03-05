@@ -32,7 +32,7 @@ class DBRepository:
     async def get_one(self, id_: int):
         return await self.session.get(self.model, id_)
 
-    async def get_many(self, filters=None, order_by="id", order="asc"):
+    async def get_many(self, filters=None, order_by="id", order="asc", page=1, page_size=10):
         stmt = select(self.model)
 
         if filters:
@@ -40,6 +40,9 @@ class DBRepository:
 
         ordering = desc if order == "desc" else asc
         stmt = stmt.order_by(ordering(order_by))
+
+        stmt = stmt.offset((page - 1) * page_size)
+        stmt = stmt.limit(page_size)
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
