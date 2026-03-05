@@ -1,8 +1,9 @@
 from typing import Optional
-
-from pydantic import BaseModel, model_validator
+from urllib.parse import urljoin
+from pydantic import BaseModel, model_validator, computed_field
 from pydantic import Field
 from typing_extensions import Self
+from app.core.config import settings
 
 
 class HouseDetailSchema(BaseModel):
@@ -10,7 +11,7 @@ class HouseDetailSchema(BaseModel):
     name: str = Field(description='Название дома')
     description: str = Field(description='Краткое описание')
     price: int = Field(description='Цена в рублях', examples=['5000', '10000'])
-    preview: Optional[str] = Field(default="", description="Фото дома")
+    preview: Optional[str] = Field(default="", description="Фото дома", exclude=True)
 
     text: str
     deposit: int | None
@@ -19,6 +20,13 @@ class HouseDetailSchema(BaseModel):
     bathrooms: int
     free_parking: bool
     pets_allowed: bool | None
+
+    @computed_field
+    @property
+    def preview_url(self) -> str:
+        if not self.preview:
+            return ""
+        return urljoin(settings.MEDIA_URL, self.preview)
 
 
 class HouseItemSchema(BaseModel):
