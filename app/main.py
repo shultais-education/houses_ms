@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from redis.asyncio import Redis
 from app.api.endpoints.houses import houses_router
+from app.api.endpoints.media import media_router
 from contextlib import asynccontextmanager
 from app.db.session import async_engine
 from app.core.config import settings
@@ -19,3 +20,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="API домов", description="Микросервис для управления домами")
 app.include_router(houses_router)
+app.include_router(media_router)
