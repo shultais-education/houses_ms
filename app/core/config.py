@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     MEDIA_ROOT: Path = ROOT / Path("media")
     MEDIA_URL: str = "http://localhost:8000/media/"
 
+    # S3
+    S3_ACCESS_KEY: str = ""
+    S3_SECRET_KEY: str = ""
+    S3_ENDPOINT: str = ""
+    S3_BUCKET: str = ""
+    S3_REGION: str = ""
+
     class Config:
         env_file = ".env"
 
