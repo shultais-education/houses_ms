@@ -9,6 +9,7 @@ from app.services.cache import CacheService
 from app.schemas.house import HouseCreateSchema, HouseUpdateSchema, HousePreviewSchema
 from sqlalchemy import Sequence
 from pydantic_core import ValidationError
+import aiofiles
 
 
 class HouseService:
@@ -51,14 +52,15 @@ class HouseService:
         preview_full_dir = HouseService._get_preview_full_dir()
         return preview_full_dir / filename
 
-    async def save_preview(self, house, file, original_filename) -> House:
+    async def save_preview(self, house, file) -> House:
         HouseService._create_preview_full_dir()
 
-        filename = HouseService._get_preview_filename(original_filename)
+        filename = HouseService._get_preview_filename(file.filename)
         preview_full_path = HouseService._get_preview_full_path(filename)
 
-        with open(preview_full_path, "wb") as f:
-            f.write(file.read())
+        async with aiofiles.open(preview_full_path, "wb") as f:
+            while chunk := await file.read(1024):
+                await f.write(chunk)
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
