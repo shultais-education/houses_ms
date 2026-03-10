@@ -80,11 +80,27 @@ class HouseService:
             await s3_client.put_object(Bucket=settings.S3_BUCKET, Key=key, Body=content)
 
     @staticmethod
+    async def _upload_to_s3(file_path: Path, s3_path: str):
+        session = aioboto3.Session()
+        async with session.client(
+                "s3",
+                endpoint_url=settings.S3_ENDPOINT,
+                aws_access_key_id=settings.S3_ACCESS_KEY,
+                aws_secret_access_key=settings.S3_SECRET_KEY,
+                region_name=settings.S3_REGION
+        ) as s3_client:
+            await s3_client.upload_file(file_path, Bucket=settings.S3_BUCKET, Key=s3_path)
+
+    @staticmethod
     async def _make_thumbnail(size: tuple[int, Union[int, str]], file: Path, filename: Path):
         suffix = f"_{size[0]}x{size[1]}"
-
-        thumbnail_dir = HouseService._get_preview_full_dir()
         filename = f"{filename.stem}{suffix}{filename.suffix}"
+
+        thumbnail_dir = HouseService._get_preview_dir()
+        thumbnail_full_dir = HouseService._get_preview_full_dir()
+
+        thumbnail_path = thumbnail_dir / filename
+        thumbnail_full_path = thumbnail_full_dir / filename
 
         with Image.open(file) as im:
             im_width, im_height = im.size
@@ -93,7 +109,9 @@ class HouseService:
             if height == "*":
                 height = round(width * im_height / im_width)
 
-            ImageOps.fit(im, (width, height)).save(thumbnail_dir / filename)
+            ImageOps.fit(im, (width, height)).save(thumbnail_full_path)
+
+        return thumbnail_path, thumbnail_full_path
 
     async def save_preview(self, house, file) -> House:
         HouseService._create_preview_full_dir()
@@ -104,8 +122,11 @@ class HouseService:
         elif settings.MEDIA_STORAGE == MediaStorageType.S3:
             await HouseService._save_s3_preview(file=file, filename=filename)
 
-        await HouseService._make_thumbnail(size=(400, 250), file=file.file, filename=filename)
-        await HouseService._make_thumbnail(size=(1000, "*"), file=file.file, filename=filename)
+        t_path, t_full_path = await HouseService._make_thumbnail(size=(400, 250), file=file.file, filename=filename)
+        await HouseService._upload_to_s3(file_path=t_full_path, s3_path=str(t_path))
+
+        t_path, t_full_path = await HouseService._make_thumbnail(size=(1000, "*"), file=file.file, filename=filename)
+        await HouseService._upload_to_s3(file_path=t_full_path, s3_path=str(t_path))
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
