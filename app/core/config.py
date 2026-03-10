@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings
 from pydantic import PostgresDsn, RedisDsn
 from pathlib import Path
 from enum import Enum
+from typing import Union
 
 
 class MediaStorageType(str, Enum):
@@ -29,6 +30,12 @@ class Settings(BaseSettings):
 
     # Настройки медиа файлов
     MEDIA_STORAGE: MediaStorageType = MediaStorageType.LOCAL
+
+    THUMBNAIL_SMALL_SIZE: tuple[int, Union[int, str]] = (400, 250)
+    THUMBNAIL_SMALL_SUFFIX: str = "small"
+
+    THUMBNAIL_BIG_SIZE: tuple[int, Union[int, str]] = (1000, "*")
+    THUMBNAIL_BIG_SUFFIX: str = "big"
 
     MEDIA_ROOT: Path = ROOT / Path("media")
     MEDIA_URL: str = "http://localhost:8000/media/"

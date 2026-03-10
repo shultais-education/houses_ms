@@ -36,7 +36,7 @@ class HouseDetailSchema(BaseModel):
     @computed_field
     @property
     def preview_url(self) -> str:
-        return get_preview_url(self.preview, "1000x*")
+        return get_preview_url(self.preview, settings.THUMBNAIL_BIG_SUFFIX)
 
 
 class HouseItemSchema(BaseModel):
@@ -48,7 +48,7 @@ class HouseItemSchema(BaseModel):
     @computed_field
     @property
     def preview_url(self) -> str:
-        return get_preview_url(self.preview, "400x250")
+        return get_preview_url(self.preview, settings.THUMBNAIL_SMALL_SUFFIX)
 
 
 class HouseCreateSchema(BaseModel):

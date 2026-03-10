@@ -92,8 +92,8 @@ class HouseService:
             await s3_client.upload_file(file_path, Bucket=settings.S3_BUCKET, Key=s3_path)
 
     @staticmethod
-    async def _make_thumbnail(size: tuple[int, Union[int, str]], file: Path, filename: Path):
-        suffix = f"_{size[0]}x{size[1]}"
+    async def _make_thumbnail(size: tuple[int, Union[int, str]], file: Path, filename: Path, suffix: str = ""):
+        suffix = f"_{size[0]}x{size[1]}" if not suffix else f"_{suffix}"
         filename = f"{filename.stem}{suffix}{filename.suffix}"
 
         thumbnail_dir = HouseService._get_preview_dir()
@@ -122,11 +122,20 @@ class HouseService:
         elif settings.MEDIA_STORAGE == MediaStorageType.S3:
             await HouseService._save_s3_preview(file=file, filename=filename)
 
-        t_path, t_full_path = await HouseService._make_thumbnail(size=(400, 250), file=file.file, filename=filename)
-        await HouseService._upload_to_s3(file_path=t_full_path, s3_path=str(t_path))
+        # Создаем уменьшенные копии
+        t_small_path, t_small_full_path = await HouseService._make_thumbnail(
+            size=settings.THUMBNAIL_SMALL_SIZE, file=file.file, filename=filename, suffix=settings.THUMBNAIL_SMALL_SUFFIX)
 
-        t_path, t_full_path = await HouseService._make_thumbnail(size=(1000, "*"), file=file.file, filename=filename)
-        await HouseService._upload_to_s3(file_path=t_full_path, s3_path=str(t_path))
+        t_big_path, t_big_full_path = await HouseService._make_thumbnail(
+            size=settings.THUMBNAIL_BIG_SIZE, file=file.file, filename=filename, suffix=settings.THUMBNAIL_BIG_SUFFIX)
+
+        # Загружаем уменьшенные копии в S3
+        if settings.MEDIA_STORAGE == MediaStorageType.S3:
+            await HouseService._upload_to_s3(file_path=t_small_full_path, s3_path=str(t_small_path))
+            await HouseService._upload_to_s3(file_path=t_big_full_path, s3_path=str(t_big_path))
+
+            t_small_full_path.unlink()
+            t_big_full_path.unlink()
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
