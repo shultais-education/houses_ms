@@ -7,6 +7,17 @@ from typing_extensions import Self
 from app.core.config import settings
 
 
+def get_preview_url(preview, suffix: str) -> str:
+    if not preview:
+        return ""
+
+    preview = Path(preview)
+    preview_dir = preview.parent
+    filename = Path(f"{preview.stem}_{suffix}{preview.suffix}")
+
+    return urljoin(settings.MEDIA_URL, str(preview_dir / filename))
+
+
 class HouseDetailSchema(BaseModel):
     id: int
     name: str = Field(description='Название дома')
@@ -25,14 +36,7 @@ class HouseDetailSchema(BaseModel):
     @computed_field
     @property
     def preview_url(self) -> str:
-        if not self.preview:
-            return ""
-
-        preview = Path(self.preview)
-        preview_dir = preview.parent
-        filename = Path(f"{preview.stem}_1000x*{preview.suffix}")
-
-        return urljoin(settings.MEDIA_URL, str(preview_dir / filename))
+        return get_preview_url(self.preview, "1000x*")
 
 
 class HouseItemSchema(BaseModel):
@@ -44,14 +48,7 @@ class HouseItemSchema(BaseModel):
     @computed_field
     @property
     def preview_url(self) -> str:
-        if not self.preview:
-            return ""
-
-        preview = Path(self.preview)
-        preview_dir = preview.parent
-        filename = Path(f"{preview.stem}_400x250{preview.suffix}")
-
-        return urljoin(settings.MEDIA_URL, str(preview_dir / filename))
+        return get_preview_url(self.preview, "400x250")
 
 
 class HouseCreateSchema(BaseModel):
