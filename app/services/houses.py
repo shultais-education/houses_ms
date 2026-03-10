@@ -2,6 +2,7 @@ from uuid import uuid4
 from pathlib import Path
 from datetime import datetime as dt
 from app.core.config import settings
+from app.core.config import MediaStorageType
 
 from app.models import House
 from app.repositories.houses import HouseRepository
@@ -80,7 +81,10 @@ class HouseService:
         HouseService._create_preview_full_dir()
         filename = HouseService._get_preview_filename(file.filename)
 
-        await HouseService._save_local_preview(file=file, filename=filename)
+        if settings.MEDIA_STORAGE == MediaStorageType.LOCAL:
+            await HouseService._save_local_preview(file=file, filename=filename)
+        elif settings.MEDIA_STORAGE == MediaStorageType.S3:
+            await HouseService._save_s3_preview(file=file, filename=filename)
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
