@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime as dt
 from app.core.config import settings
 from app.core.config import MediaStorageType
+from PIL import Image, ImageOps
 
 from app.models import House
 from app.repositories.houses import HouseRepository
@@ -77,6 +78,16 @@ class HouseService:
 
             await s3_client.put_object(Bucket=settings.S3_BUCKET, Key=key, Body=content)
 
+    @staticmethod
+    async def _make_thumbnail(size: tuple[int, int], file: Path, filename: Path):
+        suffix = f"_{size[0]}x{size[1]}"
+
+        thumbnail_dir = HouseService._get_preview_full_dir()
+        filename = f"{filename.stem}{suffix}{filename.suffix}"
+
+        with Image.open(file) as im:
+            ImageOps.fit(im, size).save(thumbnail_dir / filename)
+
     async def save_preview(self, house, file) -> House:
         HouseService._create_preview_full_dir()
         filename = HouseService._get_preview_filename(file.filename)
@@ -85,6 +96,8 @@ class HouseService:
             await HouseService._save_local_preview(file=file, filename=filename)
         elif settings.MEDIA_STORAGE == MediaStorageType.S3:
             await HouseService._save_s3_preview(file=file, filename=filename)
+
+        await HouseService._make_thumbnail(size=(400, 250), file=file.file, filename=filename)
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
