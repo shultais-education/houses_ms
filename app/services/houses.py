@@ -9,7 +9,7 @@ from app.services.cache import CacheService
 from app.schemas.house import HouseCreateSchema, HouseUpdateSchema, HousePreviewSchema
 from sqlalchemy import Sequence
 from pydantic_core import ValidationError
-# import aiofiles
+import aiofiles
 import aioboto3
 
 
@@ -53,16 +53,16 @@ class HouseService:
         preview_full_dir = HouseService._get_preview_full_dir()
         return preview_full_dir / filename
 
-    async def save_preview(self, house, file) -> House:
-        HouseService._create_preview_full_dir()
-
-        filename = HouseService._get_preview_filename(file.filename)
+    @staticmethod
+    async def _save_local_preview(file, filename: Path):
         preview_full_path = HouseService._get_preview_full_path(filename)
 
-        # async with aiofiles.open(preview_full_path, "wb") as f:
-        #     while chunk := await file.read(1024):
-        #         await f.write(chunk)
+        async with aiofiles.open(preview_full_path, "wb") as f:
+            while chunk := await file.read(1024):
+                await f.write(chunk)
 
+    @staticmethod
+    async def _save_s3_preview(file, filename: Path):
         session = aioboto3.Session()
         async with session.client(
                 "s3",
@@ -75,6 +75,12 @@ class HouseService:
             key = str(HouseService._get_preview_path(filename))
 
             await s3_client.put_object(Bucket=settings.S3_BUCKET, Key=key, Body=content)
+
+    async def save_preview(self, house, file) -> House:
+        HouseService._create_preview_full_dir()
+        filename = HouseService._get_preview_filename(file.filename)
+
+        await HouseService._save_local_preview(file=file, filename=filename)
 
         house = await self.repository.add_preview(house=house, preview=HousePreviewSchema(**{
             "preview": str(HouseService._get_preview_path(filename))
