@@ -1,4 +1,5 @@
 from typing import Optional
+from pathlib import Path
 from urllib.parse import urljoin
 from pydantic import BaseModel, model_validator, computed_field
 from pydantic import Field
@@ -26,13 +27,31 @@ class HouseDetailSchema(BaseModel):
     def preview_url(self) -> str:
         if not self.preview:
             return ""
-        return urljoin(settings.MEDIA_URL, self.preview)
+
+        preview = Path(self.preview)
+        preview_dir = preview.parent
+        filename = Path(f"{preview.stem}_1000x*{preview.suffix}")
+
+        return urljoin(settings.MEDIA_URL, str(preview_dir / filename))
 
 
 class HouseItemSchema(BaseModel):
     id: int
     name: str
     price: int | None = None
+    preview: Optional[str] = Field(default="", description="Фото дома", exclude=True)
+
+    @computed_field
+    @property
+    def preview_url(self) -> str:
+        if not self.preview:
+            return ""
+
+        preview = Path(self.preview)
+        preview_dir = preview.parent
+        filename = Path(f"{preview.stem}_400x250{preview.suffix}")
+
+        return urljoin(settings.MEDIA_URL, str(preview_dir / filename))
 
 
 class HouseCreateSchema(BaseModel):
