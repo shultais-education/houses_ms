@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: houses-ms-postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRESQL_DATABASE: houses
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/bitnami/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: houses-ms-redis
+    ports:
+      - "6379"
+      # - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: houses-ms-app
+    ports:
+      - "8000:8000"    # внешний и внутренний порты
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+      DB_HOST: postgres
+      DB_PORT: 5432
+      MEDIA_STORAGE: s3
+      MEDIA_URL: https://8a794a5a-75db-4ab5-b97b-7365ace9f0c9.selstorage.ru
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    working_dir: /
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/www/SE/Courses/fastapi/microservices/docker_data/houses_ms/postgresql
+      o: bind
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/www/SE/Courses/fastapi/microservices/docker_data/houses_ms/redis
+      o: bind
+
+networks:
+  app-network:
+    driver: bridge
