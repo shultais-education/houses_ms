@@ -44,6 +44,7 @@ class HouseItemSchema(BaseModel):
     name: str
     price: int | None = None
     preview: Optional[str] = Field(default="", description="Фото дома", exclude=True)
+    description: Optional[str] = Field(default=None, min_length=10, max_length=255, description="Описание")
 
     @computed_field
     @property
